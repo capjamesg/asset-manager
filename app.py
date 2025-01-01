@@ -9,14 +9,14 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
-ASSETS_DIRECTORY = os.environ.get("ASSETS_DIRECTORY", "")
+ASSETS_DIRECTORY = ""
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
 
 @app.route("/<path:path>")
 def send_assets(path):
     # remove /assets/ from start of path that is passed from nginx
-    path = path.replace("/assets/", "")
+    path = path.replace("assets/", "")
 
     filename = secure_filename(path)
     original_filename = filename
@@ -40,10 +40,10 @@ def send_assets(path):
     else:
         filename_with_webp = original_filename
 
-    if not os.path.exists(os.path.join(ASSETS_DIRECTORY, filename_with_webp)):
-        image = Image.open(os.path.join(ASSETS_DIRECTORY, filename))
+    # if not os.path.exists(os.path.join(ASSETS_DIRECTORY, filename_with_webp)):
+    image = Image.open(os.path.join(ASSETS_DIRECTORY, filename))
 
-        image.save(os.path.join(ASSETS_DIRECTORY, filename_with_webp), "webp", exif=b"")
+    image.save(os.path.join(ASSETS_DIRECTORY, filename_with_webp), "webp", exif=b"", quality=80)
 
     return send_from_directory(
         ASSETS_DIRECTORY, filename_with_webp, as_attachment=False, mimetype="image/webp"
